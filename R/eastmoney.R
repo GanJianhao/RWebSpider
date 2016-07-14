@@ -11,24 +11,24 @@ web_spider.eastmoney <- function(website, num = 80) {
     html.text <- html_text(html.contents, trim = TRUE)
 
     ## http://guba.eastmoney.com/list,000002,99.html
-    ID <- substr(website, 32, 37) %>% rep(num)
-    Main <- rep(website, num)
+    StockID <- substr(website, 32, 37) %>% rep(num)
 
     ## Index to select useful information
     index <- seq(1, num * 5, 5)
-    Sub <- html.contents[index + 2] %>%
+    PostID <- html.contents[index + 2] %>%
         html_nodes(xpath = "./a") %>%
-        html_attr("href")
+        html_attr("href") %>%
+        substr(13, 21) %>%
+        as.numeric()
     Title <- html.contents[index + 2] %>%
         html_nodes(xpath = "./a") %>%
         html_attr("title")
-    Readings <- as.numeric(html.text[index])
-    Reviews <- as.numeric(html.text[index + 1])
-    PubDate <- paste0("2016-", html.text[index + 3])
-    LastTime <- paste0("2016-", html.text[index + 4])
+    ReadingNum <- as.numeric(html.text[index])
+    CommentNum <- as.numeric(html.text[index + 1])
+    PostDate <- paste0("2016-", html.text[index + 3])
+    LastCommentTime <- paste0("2016-", html.text[index + 4])
 
-    df <- data.frame(ID, Main, Sub, PubDate, LastTime, Title, Readings,
-                     Reviews)
+    df <- data.frame(PostID, LastCommentTime, PostDate, StockID, ReadingNum, CommentNum)# Title)
 
     return(df)
 }
